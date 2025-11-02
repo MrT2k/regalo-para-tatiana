@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>💞 El Laberinto del Amor 💞</title>
+<style>
+  body {
+    margin: 0;
+    background: radial-gradient(circle at top, #1a001a, #000);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    overflow: hidden;
+    font-family: "Poppins", sans-serif;
+  }
+
+  canvas {
+    border: 3px solid #ff69b4;
+    box-shadow: 0 0 20px #ff69b4;
+    background: #111;
+    max-width: 90vw;
+    max-height: 60vh;
+  }
+
+  #controles {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 15px;
+  }
+
+  .fila {
+    display: flex;
+    justify-content: center;
+  }
+
+  button.control {
+    width: 60px;
+    height: 60px;
+    margin: 5px;
+    background: linear-gradient(90deg, #ff69b4, #ff1493);
+    border: none;
+    border-radius: 15px;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    box-shadow: 0 0 10px rgba(255,105,180,0.6);
+  }
+
+  button.control:active {
+    transform: scale(0.9);
+  }
+
+  #mensajeFinal {
+    position: absolute;
+    display: none;
+    color: #fff;
+    text-align: center;
+    background: rgba(0,0,0,0.85);
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 0 20px #ff69b4;
+    animation: fadeIn 1s ease forwards;
+  }
+
+  #mensajeFinal button {
+    margin-top: 15px;
+    background: linear-gradient(90deg, #ff69b4, #ff1493);
+    border: none;
+    border-radius: 20px;
+    padding: 10px 20px;
+    color: white;
+    font-size: 1rem;
+    cursor: pointer;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="laberinto"></canvas>
+
+<div id="controles">
+  <div class="fila">
+    <button class="control" id="arriba">⬆️</button>
+  </div>
+  <div class="fila">
+    <button class="control" id="izquierda">⬅️</button>
+    <button class="control" id="abajo">⬇️</button>
+    <button class="control" id="derecha">➡️</button>
+  </div>
+</div>
+
+<div id="mensajeFinal">
+  <h2>💖 ¡Lo lograste, mi amor! 💖</h2>
+  <p>Superaste el laberinto del amor 🥰<br>Prepárate para el siguiente desafío...</p>
+  <button onclick="window.location.href='siguiente.html'">Continuar 💞</button>
+</div>
+
+<script>
+const canvas = document.getElementById('laberinto');
+const ctx = canvas.getContext('2d');
+
+const maze = [
+  "####################",
+  "#........#.........#",
+  "#.######.#.#######.#",
+  "#.#......#.......#.#",
+  "#.#.###########.#.#",
+  "#.#.....#.....#.#.#",
+  "#.#####.#.###.#.#.#",
+  "#.....#.#.#...#...#",
+  "#####.#.#.#.#######",
+  "#.....#...#.......#",
+  "#.#########.#####.#",
+  "#.........#.....#.#",
+  "#.#######.#####.#.#",
+  "#.#.....#.......#.#",
+  "#.#.###.#########.#",
+  "#.#...#...........#",
+  "#.###.###########.#",
+  "#...#.............#",
+  "#################E#"
+];
+
+// Ajustar tamaño del canvas según pantalla
+const cellSize = Math.min(window.innerWidth, window.innerHeight) / 22;
+canvas.width = cellSize * maze[0].length;
+canvas.height = cellSize * maze.length;
+
+let player = { x: 1, y: 1 };
+
+function drawMaze() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  for (let y = 0; y < maze.length; y++) {
+    for (let x = 0; x < maze[y].length; x++) {
+      if (maze[y][x] === "#") {
+        ctx.fillStyle = "#ff69b4";
+        ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
+      } else if (maze[y][x] === "E") {
+        ctx.fillStyle = "rgba(255,255,150,0.9)";
+        ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
+      }
+    }
+  }
+
+  ctx.beginPath();
+  ctx.fillStyle = "#4cffb8";
+  ctx.arc(player.x * cellSize + cellSize / 2, player.y * cellSize + cellSize / 2, cellSize / 3, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+function movePlayer(dx, dy) {
+  const newX = player.x + dx;
+  const newY = player.y + dy;
+
+  if (maze[newY][newX] !== "#") {
+    player.x = newX;
+    player.y = newY;
+  }
+
+  if (maze[newY][newX] === "E") {
+    document.getElementById("mensajeFinal").style.display = "block";
+  }
+
+  drawMaze();
+}
+
+// Teclado (PC)
+document.addEventListener("keydown", e => {
+  switch (e.key) {
+    case "ArrowUp": movePlayer(0, -1); break;
+    case "ArrowDown": movePlayer(0, 1); break;
+    case "ArrowLeft": movePlayer(-1, 0); break;
+    case "ArrowRight": movePlayer(1, 0); break;
+  }
+});
+
+// Controles táctiles (móvil)
+document.getElementById("arriba").addEventListener("click", () => movePlayer(0, -1));
+document.getElementById("abajo").addEventListener("click", () => movePlayer(0, 1));
+document.getElementById("izquierda").addEventListener("click", () => movePlayer(-1, 0));
+document.getElementById("derecha").addEventListener("click", () => movePlayer(1, 0));
+
+drawMaze();
+</script>
+</body>
+</html>
